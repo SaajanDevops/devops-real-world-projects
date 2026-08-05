@@ -17,6 +17,7 @@ This is a deliberate scope decision, not an oversight: the goal of this
 project is to demonstrate the CI/CD pipeline mechanics (build → test →
 scan → publish → containerize → deploy → promote), not to stand up the
 full multi-tier application on ECS. As a result:
+
 - ECS "Deployment failure detection" is deliberately unchecked, since the app logs a RabbitMQ connection error on startup (expected, and safe to ignore in this context)
 - The app container serves HTTP traffic and the base UI, but features depending on MySQL/RabbitMQ/Memcached will not function against this ECS deployment
 - A full backend stack (Tomcat, MySQL, Memcached, RabbitMQ) is deployed separately via Ansible in `01-infrastructure-as-code/ansible-full-stack-deployment` — pairing that approach with this pipeline would be the natural next step if extending this project to a complete ECS deployment
@@ -75,12 +76,14 @@ MySQL, Nginx, Tomcat
 - `ProdPipeline/Jenkinsfile` — minimal deploy-only pipeline for production
 - `settings.xml` — Maven config pointing dependency resolution through Nexus
 - `pom.xml` — Maven build configuration
+- `src/` — VProfile reference application source
 - `Docker-files/app/Dockerfile` — single-stage app image (Tomcat + built .war)
 - `Docker-files/app/multistage/Dockerfile` — multi-stage build used by the pipeline (Maven build stage → Tomcat runtime stage)
 - `Docker-files/db/Dockerfile` — MySQL image seeded with the app's schema
 - `Docker-files/web/Dockerfile` — Nginx reverse proxy image
 - `userdata/` — EC2 user-data scripts that provision Jenkins, Nexus, and SonarQube automatically
 - `docs/infrastructure-setup.md` — full infra reference: security groups, IAM, Nexus repos, Jenkins tools/plugins/credentials, ECS config, and real gotchas hit during setup
+- `screenshots/` — pipeline run evidence
 
 ## Branch Strategy
 
@@ -128,16 +131,58 @@ are in [`docs/infrastructure-setup.md`](docs/infrastructure-setup.md).
 
 ## Screenshots
 
-| Screenshot | What it shows |
-|---|---|
-| `01-pipeline-full-run.png` | Full stage view, Build through Deploy to Staging ECS, all green |
-| `02-github-webhook-trigger.png` | Webhook config / auto-triggered build proving it's not manual |
-| `03-sonarqube-quality-gate.png` | SonarQube dashboard with quality gate result |
-| `04-nexus-artifact.png` | Published artifact in `vprofile-release` with version number |
-| `05-slack-notification.png` | Slack message from the pipeline |
-| `06-ecr-image-pushed.png` | Docker image in ECR with `$BUILD_NUMBER` and `latest` tags |
-| `07-ecs-staging-running.png` | ECS staging service/task running the new image |
-| `08-ecs-prod-running.png` | ECS production service after a promoted deploy |
-| `09-app-live-in-browser.png` | The deployed app, hit via the load balancer DNS name |
+### CI Pipeline (jenkins-ci) — Build, Test, Quality Gate
 
-*(Account IDs, private IPs, and internal URLs are cropped/blurred in all screenshots.)*
+![Jenkins CI pipeline stages](screenshots/01-jenkins-ci-pipeline-stages.png)
+
+### Staging CI/CD Pipeline (vprofile-cicd) — Build through ECS Deploy
+
+![Staging CI/CD pipeline stages](screenshots/02-vprofile-cicd-pipeline-stages.png)
+
+### GitHub Webhook — Automatic Trigger
+
+![GitHub webhook trigger](screenshots/03-github-webhook-trigger.png)
+
+### SonarQube Quality Gate
+
+![SonarQube quality gate](screenshots/04-sonarqube-quality-gate.png)
+
+### Artifact Published to Nexus
+
+![Nexus artifact](screenshots/05-nexus-artifact.png)
+
+### Slack Notification
+
+![Slack notification](screenshots/06-slack-notification.png)
+
+### Docker Image Pushed to ECR
+
+![ECR image pushed](screenshots/07-ecr-image-pushed.png)
+
+### ECS Clusters (Staging + Production)
+
+![ECS clusters overview](screenshots/08-ecs-clusters-overview.png)
+
+### ECS Production Service Running
+
+![ECS production service running](screenshots/09-ecs-prod-service-running.png)
+
+### ECS Task Definition
+
+![ECS task definition](screenshots/10-ecs-task-definition.png)
+
+### All Jenkins Pipeline Jobs
+
+![Jenkins all jobs overview](screenshots/11-jenkins-all-jobs-overview.png)
+
+### Load Balancers (Staging + Production)
+
+![Load balancers](screenshots/12-load-balancers.png)
+
+### App Live in Browser
+
+![App live in browser](screenshots/13-app-live-in-browser.png)
+
+---
+
+_Account IDs and internal ARNs are cropped from all screenshots above._
