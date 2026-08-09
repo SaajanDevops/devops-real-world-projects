@@ -35,7 +35,7 @@ _(More categories — Infrastructure as Code, Containerization, Kubernetes, GitO
 
 ## How this repo is organized
 
-Projects are grouped by capability, not by course — each numbered folder
+Projects are grouped by capability, — each numbered folder
 represents a category (CI/CD, Cloud Migration, etc.), and inside it are
 one or more independent projects. This structure is intentional: it lets
 the repo grow indefinitely as new projects are added, without ever
