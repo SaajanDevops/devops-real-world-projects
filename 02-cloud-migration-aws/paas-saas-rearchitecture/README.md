@@ -12,7 +12,7 @@ This project is the direct follow-up to `lift-and-shift-ec2`. Together
 they demonstrate a realistic migration path:
 
 1. **Lift and shift** — rehost the app on EC2 with minimal changes (fast, low-risk, but still requires managing servers)
-2. **Refactor to PaaS/SaaS** *(this project)* — replace self-managed services with their managed AWS equivalents to cut operational overhead and improve scalability
+2. **Refactor to PaaS/SaaS** _(this project)_ — replace self-managed services with their managed AWS equivalents to cut operational overhead and improve scalability
 
 Same application, same architecture shape, fundamentally different
 operational model.
@@ -36,7 +36,7 @@ IAM, CloudWatch
 
 ## Structure
 
-- `src-config/application.properties.example` — sanitized template showing how the app connects to each managed service (RDS/ElastiCache/Amazon MQ endpoints)
+- `02-cloud-migration-aws\paas-saas-rearchitecture\src\main\resources\application.properties` — sanitized template showing how the app connects to each managed service (RDS/ElastiCache/Amazon MQ endpoints)
 - `docs/infrastructure-setup.md` — full reference: IAM role setup, RDS/ElastiCache/Amazon MQ configuration, Beanstalk environment settings, deployment policy comparison, CloudFront setup, and real gotchas hit during setup
 - `screenshots/` — deployment evidence
 
@@ -69,7 +69,7 @@ Full details in [`docs/infrastructure-setup.md`](docs/infrastructure-setup.md).
 
 ## What I changed from the course version
 
-- Used my own fork ([SaajanDevops/vprofile-devops](https://github.com/SaajanDevops/vprofile-devops/tree/awsrefactor)) instead of the instructor's source repo
+- Used my repo ([SaajanDevops/vprofile-devops](https://github.com/SaajanDevops/vprofile-devops/tree/awsrefactor))
 - [Add anything else you changed — e.g. different domain, adjusted Beanstalk scaling thresholds, different deployment policy, etc.]
 
 ## Cleanup Note
@@ -84,11 +84,13 @@ environment → CloudFront → DNS records → security groups.
 ## Screenshots
 
 ### Backend Services (Managed)
+
 ![RDS MySQL instance created](screenshots/02-rds-mysql-created.png)
 ![ElastiCache Memcached cluster created](screenshots/03-elasticache-memcached-created.png)
 ![Amazon MQ RabbitMQ broker created](screenshots/04-amazon-mq-rabbitmq-created.png)
 
 ### Elastic Beanstalk Environment
+
 ![Beanstalk over HTTP - before HTTPS](screenshots/05-beanstalk-http-not-secure.png)
 ![Beanstalk deployment events - rolling update completed](screenshots/06-beanstalk-deployment-events.png)
 ![Target group - both instances healthy](screenshots/07-target-group-healthy.png)
@@ -96,18 +98,18 @@ environment → CloudFront → DNS records → security groups.
 ![CloudWatch NetworkOut alarm](screenshots/09-cloudwatch-networkout-alarm.png)
 
 ### CloudFront & HTTPS
+
 ![CloudFront distribution created](screenshots/10-cloudfront-distribution-created.png)
 ![CloudFront CNAME record added to domain registry](screenshots/11-cloudfront-dns-record-added.png)
 ![Login page over HTTPS - secure connection](screenshots/12-login-page-https-secure.png)
 
 ### Application Verification
+
 ![Welcome page after login](screenshots/13-welcome-page-after-login.png)
 ![Users list - RDS connectivity verified](screenshots/14-users-list-db-verified.png)
 ![ElastiCache verified - data inserted in cache](screenshots/15-memcache-verified.png)
 ![Amazon MQ verified - message sent successfully](screenshots/16-rabbitmq-verified.png)
 
 ---
-*Account IDs and ARNs are cropped from all screenshots above. The
-architecture diagram is a reference diagram used while learning this
-pattern; redrawing an original version is on the list of future
-improvements for this project.*
+
+\*Account IDs and ARNs are cropped from all screenshots above.
