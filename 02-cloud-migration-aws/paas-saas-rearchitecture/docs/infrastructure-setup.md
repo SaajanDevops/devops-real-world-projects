@@ -8,22 +8,24 @@ self-managed EC2 service replaced with its managed equivalent.
 ## Migration Strategy: Rehost → Refactor
 
 This is the second step in a two-part migration story:
+
 1. **Lift and shift** (previous project) — move the app onto EC2 with minimal changes
 2. **Refactor to PaaS/SaaS** (this project) — replace self-managed infrastructure with managed services to reduce operational overhead, improve scaling, and cut the team size needed to run it
 
-| Self-managed (EC2, lift-and-shift) | Managed equivalent (this project) |
-|---|---|
+| Self-managed (EC2, lift-and-shift)   | Managed equivalent (this project)                                              |
+| ------------------------------------ | ------------------------------------------------------------------------------ |
 | Tomcat on EC2 + manual ASG/ELB setup | **Elastic Beanstalk** (bundles EC2, ASG, ALB, S3, CloudWatch into one service) |
-| MySQL on EC2 | **Amazon RDS** (MySQL 8.0) |
-| Memcached on EC2 | **Amazon ElastiCache** (Memcached engine) |
-| RabbitMQ on EC2 | **Amazon MQ** (RabbitMQ engine) |
-| Manual Route 53 private DNS entries | Not needed — Beanstalk/RDS/ElastiCache/MQ all provide managed endpoints |
-| No CDN | **Amazon CloudFront** added for global content delivery |
+| MySQL on EC2                         | **Amazon RDS** (MySQL 8.0)                                                     |
+| Memcached on EC2                     | **Amazon ElastiCache** (Memcached engine)                                      |
+| RabbitMQ on EC2                      | **Amazon MQ** (RabbitMQ engine)                                                |
+| Manual Route 53 private DNS entries  | Not needed — Beanstalk/RDS/ElastiCache/MQ all provide managed endpoints        |
+| No CDN                               | **Amazon CloudFront** added for global content delivery                        |
 
 ## IAM Role for Elastic Beanstalk
 
 Beanstalk's default auto-created role lacks permissions this project
 needs, so a custom role is created manually with four policies attached:
+
 - `AdministratorAccess-AWSElasticBeanstalk`
 - `AWSElasticBeanstalkCustomPlatformforEC2Role`
 - `AWSElasticBeanstalkRolesSNS`
@@ -37,7 +39,7 @@ its own.
 
 - Custom **parameter group**: MySQL 8.0 family, DB parameter group type (not cluster)
 - Custom **subnet group**: all subnets across all AZs in the default VPC
-- Instance: `db.t3.micro` (free tier), MySQL 8.0.x, 20GB GP3 storage, storage autoscaling disabled
+- Instance: `db.t3.micro` (free tier), MySQL 8.4.x, 20GB GP3 storage, storage autoscaling disabled
 - **Not publicly accessible** — Beanstalk reaches it internally within the VPC
 - Security group: the shared backend security group (see below)
 - DB name: `accounts` (must match what the app expects)
@@ -74,6 +76,7 @@ security group (port 3306 from the temp instance's SG).
 
 All three backend services (RDS, ElastiCache, Amazon MQ) sit in one
 security group with:
+
 - An inbound rule allowing all traffic **from itself** (so the three services can talk to each other)
 - After Beanstalk is created, a second inbound rule is added allowing all traffic **from the Beanstalk EC2 instance security group** (not the load balancer security group — the instance one)
 
@@ -92,13 +95,13 @@ security group with:
 
 ## Deployment Policy Comparison (for reference)
 
-| Policy | Behavior | Trade-off |
-|---|---|---|
-| All at once | Every instance updated simultaneously | Fastest/cheapest, full downtime |
-| Rolling | Fixed batch size or % updated at a time, old instances removed first | Some capacity reduction during deploy |
-| Rolling with additional batch | New instances added *before* removing old ones | No capacity loss, extra cost during deploy |
-| Immutable | Entirely new instance set created, cut over, then old set removed | Safest, most expensive, easiest rollback |
-| Traffic splitting (canary) | New version gets a % of live traffic to validate before full rollout | Real-traffic validation, most complex to reason about |
+| Policy                        | Behavior                                                             | Trade-off                                             |
+| ----------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------- |
+| All at once                   | Every instance updated simultaneously                                | Fastest/cheapest, full downtime                       |
+| Rolling                       | Fixed batch size or % updated at a time, old instances removed first | Some capacity reduction during deploy                 |
+| Rolling with additional batch | New instances added _before_ removing old ones                       | No capacity loss, extra cost during deploy            |
+| Immutable                     | Entirely new instance set created, cut over, then old set removed    | Safest, most expensive, easiest rollback              |
+| Traffic splitting (canary)    | New version gets a % of live traffic to validate before full rollout | Real-traffic validation, most complex to reason about |
 
 ## Build & Deploy Flow
 
