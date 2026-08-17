@@ -62,4 +62,4 @@ terraform destroy
 
 ## Screenshots
 
-03-infrastructure-as-code\01-terraform-vpc-ec2\screenshots\terraform_vpc_ec2_architecture.png
+https://github.com/SaajanDevops/devops-real-world-projects/blob/main/03-infrastructure-as-code/01-terraform-vpc-ec2/screenshots/terraform_vpc_ec2_architecture.png
