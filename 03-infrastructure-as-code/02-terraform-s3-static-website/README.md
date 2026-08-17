@@ -82,6 +82,6 @@ your portfolio, and can leak resource metadata. If your local repo
 already has these tracked in git history, remove them with
 `git rm --cached -r .terraform terraform.tfstate*` before pushing.
 
-## Screenshots
+## Screenshot
 
 ![Architecture diagram](screenshots/terraform-s3-static-website_01-architecture.png)
