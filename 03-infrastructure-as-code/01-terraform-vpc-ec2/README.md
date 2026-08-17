@@ -62,4 +62,4 @@ terraform destroy
 
 ## Screenshots
 
-*(To be added)*
+03-infrastructure-as-code\01-terraform-vpc-ec2\screenshots\terraform_vpc_ec2_architecture.png
