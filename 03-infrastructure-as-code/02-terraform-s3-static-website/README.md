@@ -12,7 +12,7 @@ and uploads the site files in one apply.
                         │
                         ▼
         S3 bucket website endpoint (HTTP)
-   terraform-course-project-<random>.s3-website-eu-west-1.amazonaws.com
+   static_website-<random>.s3-website-eu-west-1.amazonaws.com
                         │
                         ▼
               S3 bucket (public read)
