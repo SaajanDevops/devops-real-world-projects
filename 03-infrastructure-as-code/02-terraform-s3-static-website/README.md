@@ -38,8 +38,8 @@ Amazon S3 (static website hosting)
 
 ## Key Concepts Demonstrated
 
-- **`random_id` for globally unique naming** — S3 bucket names must be unique across *all* of AWS, not just your account, so a random 4-byte hex suffix is appended to the bucket name to avoid collisions on every apply
-- **Public access block overridden deliberately** — S3 buckets block public access by default (a safety default); all four `block_*`/`ignore_*`/`restrict_*` settings are explicitly set to `false` here because a public static website genuinely needs public read access. This is a case where turning *off* a security default is the correct, intentional choice — not an oversight
+- **`random_id` for globally unique naming** — S3 bucket names must be unique across _all_ of AWS, not just your account, so a random 4-byte hex suffix is appended to the bucket name to avoid collisions on every apply
+- **Public access block overridden deliberately** — S3 buckets block public access by default (a safety default); all four `block_*`/`ignore_*`/`restrict_*` settings are explicitly set to `false` here because a public static website genuinely needs public read access. This is a case where turning _off_ a security default is the correct, intentional choice — not an oversight
 - **Bucket policy for public read** — a minimal IAM policy granting `s3:GetObject` to everyone (`Principal = "*"`), scoped only to objects inside this bucket (`Resource = "${bucket.arn}/*"`), not the bucket itself — the policy can't be used to list or modify the bucket, only read individual objects
 - **Website configuration with index/error documents** — `aws_s3_bucket_website_configuration` is what actually turns the bucket into a web server: `index.html` serves as the default document, `error.html` serves as the 404 fallback
 - **Content-aware uploads with change detection** — each `aws_s3_object` sets `etag = filemd5(...)`, so Terraform detects when a local HTML file's contents change and re-uploads only when the file actually differs, rather than uploading unconditionally on every apply
@@ -76,7 +76,7 @@ terraform destroy
 This project's local folder also contains `.terraform/`, `terraform.tfstate`,
 and `terraform.tfstate.backup` — none of these are included here, and
 none should be committed to a public repo (see `.gitignore`). State
-files describe the exact resources Terraform deployed for *you*
+files describe the exact resources Terraform deployed for _you_
 specifically; they're not portable, aren't useful to someone reading
 your portfolio, and can leak resource metadata. If your local repo
 already has these tracked in git history, remove them with
@@ -84,4 +84,4 @@ already has these tracked in git history, remove them with
 
 ## Screenshots
 
-*(To be added)*
+![Architecture diagram](screenshots/terraform-s3-static-website_01-architecture.png)
