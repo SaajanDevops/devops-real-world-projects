@@ -84,4 +84,16 @@ already has these tracked in git history, remove them with
 
 ## Screenshot
 
+## Architecture
+
 ![Architecture diagram](screenshots/terraform-s3-static-website_01-architecture.png)
+
+## Deployment Result
+
+### 1. Website Homepage
+
+![S3 static website homepage](screenshots/terraform-s3-static-website_02-homepage.png)
+
+### 2. Error Page
+
+![S3 static website error page](screenshots/terraform-s3-static-website_03-error-page.png)
