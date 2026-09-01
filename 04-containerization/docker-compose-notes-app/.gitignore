@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Environment files - copy .env.example to .env locally, never commit .env
+notebooks-backend/.env
+notes-backend/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
