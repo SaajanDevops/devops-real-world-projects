@@ -47,7 +47,7 @@ _(More categories — Kubernetes, GitOps, Monitoring, Multi-Cloud — will be ad
 | Tool                                  | Projects |
 | ------------------------------------- | -------- |
 | Jenkins                               | 01       |
-| Docker / Docker Compose               | 01, 04   |
+| Docker / Docker Compose               | 02, 04   |
 | SonarQube / Nexus                     | 01       |
 | AWS EC2 / ALB / Auto Scaling          | 02, 03   |
 | AWS Elastic Beanstalk                 | 02       |
