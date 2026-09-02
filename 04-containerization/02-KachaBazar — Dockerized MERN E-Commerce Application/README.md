@@ -1077,11 +1077,6 @@ Cloud Deployment
 
 The local Docker Compose environment provides a reproducible way to run the complete application, while the architecture provides a clear path toward production deployment on AWS.
 
-```
-
-**Important:** On GitHub, the Table of Contents will now work because the link targets exactly match the plain-text headings, e.g. `[Architecture](#architecture)` → `# Architecture`.
-```
-
 <!-- # KachaBazar — Dockerized MERN E-Commerce Application
 
 A full-stack MERN e-commerce application containerized and prepared for production-oriented deployment using **Docker, Docker Compose, MongoDB Atlas, and AWS cloud architecture**.
