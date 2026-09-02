@@ -656,53 +656,39 @@ and use the credentials above to log in.
 
 ---
 
-# Screenshots
-
-The `screenshots/` directory contains screenshots demonstrating both the application and the DevOps implementation.
-
-## Customer Store
-
-### Store Home
-
-![Store Home](screenshots/01-store-home.png)
-
-### Customer Login
-
-![Store Login](screenshots/02-store-login.png)
-
-### Products
-
-![Store Products](screenshots/03-store-products.png)
-
-## Admin Dashboard
-
-### Admin Login
-
-![Admin Login](screenshots/04-admin-login.png)
-
-### Admin Dashboard
-
-![Admin Dashboard](screenshots/05-admin-dashboard.png)
-
-## Docker & DevOps
+## Screenshots
 
 ### Docker Compose Services
 
-![Docker Compose Services](screenshots/06-docker-compose-services.png)
+![Docker Compose Services](screenshots/01-docker-compose-services.png)
 
-### Docker Network
+### KachaBazar Store
 
-![Docker Network](screenshots/07-docker-network.png)
+![KachaBazar Store](screenshots/02-kachabazar-store.png)
 
-### Backend
+### Store Login
 
-![Backend API](screenshots/08-backend-api.png)
+![Store Login](screenshots/03-Store-login-page.png)
 
-### Database Seeding
+### Demo User Dashboard
 
-![Database Seed](screenshots/09-database-seed.png)
+![Demo User Dashboard](screenshots/04-Demo-user-account-dashboard.png)
 
----
+### Admin Login
+
+![Admin Login](screenshots/05-kachabazar-admin.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](screenshots/06-kachabazar-admin-dashboard.png)
+
+### Backend API
+
+![Backend API](screenshots/07-backend-api.png)
+
+### MongoDB Atlas Connection
+
+![MongoDB Atlas Connection](screenshots/08-mongodb-connection.png)
 
 # Useful Docker Commands
 
