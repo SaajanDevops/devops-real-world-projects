@@ -50,7 +50,7 @@ docker pull saajandevops/memcached
 docker pull saajandevops/rabbitmq
 ```
 
-## Structure
+## Project Structure
 
 - `compose.yaml` — defines and links all 5 services
 - `Docker-files/app/Dockerfile` — multi-stage: Maven builds the `.war` from source, then copies it into a clean Tomcat image (keeps the final image free of build tools)
