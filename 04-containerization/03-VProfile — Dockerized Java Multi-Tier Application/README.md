@@ -32,7 +32,7 @@ docker compose up --build -d
 docker compose ps
 ```
 
-Visit `http://localhost` — login `admin_vp` / `admin_vp`. Check RabbitMQ
+Visit `http://localhost` — login admin_vp and password admin_vp Check RabbitMQ
 and Memcached via the app's own test pages (linked from the homepage).
 
 ```bash
