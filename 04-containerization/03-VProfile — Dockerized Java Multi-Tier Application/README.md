@@ -2,20 +2,53 @@
 
 Containerizes the VProfile multi-tier Java app (previously deployed on
 EC2/Beanstalk in earlier projects) into 5 Docker containers, orchestrated
-with a single `compose.yaml`, images pushed to Docker Hub. Run locally
-with Docker Desktop — no VM required.
+with a single `compose.yaml`, images pushed to Docker Hub.
+
+Custom Docker images were built and published to Docker Hub under the `saajandevops` namespace.
 
 ## Architecture
 
-```
-Browser → nginx (vproweb:80) → Tomcat (vproapp:8080) → MySQL (vprodb:3306)
-                                                        → Memcached (vprocache01:11211)
-                                                        → RabbitMQ (vpromq01:5672)
+```text
+Browser
+   |
+   v
+NGINX (vproweb:80)
+   |
+   v
+Tomcat (vproapp:8080)
+   |
+   +----> MySQL (vprodb:3306)
+   |
+   +----> Memcached (vprocache01:11211)
+   |
+   +----> RabbitMQ (vpromq01:5672)
 ```
 
 ## Stack
 
 Docker, Docker Compose, Docker Hub, Maven (multi-stage build), Tomcat 10 / JDK 21, MySQL 8.0, NGINX, Memcached, RabbitMQ
+
+## Published Docker Images
+
+The Docker images for this project were built and published to Docker Hub:
+
+| Service     | Docker Image               |
+| ----------- | -------------------------- |
+| Application | `saajandevops/vprofileapp` |
+| Database    | `saajandevops/vprofiledb`  |
+| Web / NGINX | `saajandevops/vprofileweb` |
+| Memcached   | `saajandevops/memcached`   |
+| RabbitMQ    | `saajandevops/rabbitmq`    |
+
+Pull the published images with:
+
+```bash
+docker pull saajandevops/vprofileapp
+docker pull saajandevops/vprofiledb
+docker pull saajandevops/vprofileweb
+docker pull saajandevops/memcached
+docker pull saajandevops/rabbitmq
+```
 
 ## Structure
 
