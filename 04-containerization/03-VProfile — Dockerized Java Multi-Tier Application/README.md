@@ -39,11 +39,6 @@ and Memcached via the app's own test pages (linked from the homepage).
 docker compose down -v
 ```
 
-## What I changed from the course version
-
-- Ran directly on **Docker Desktop** rather than provisioning a Vagrant VM with Docker Engine first — same containers and compose file, one less layer to manage locally
-- [Add anything else you changed]
-
 ## Screenshots
 
 ### Docker Compose Services
