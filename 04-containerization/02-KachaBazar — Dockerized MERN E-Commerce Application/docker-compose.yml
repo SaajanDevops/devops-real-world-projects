@@ -1,5 +1,8 @@
 services:
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: kachabazar-backend:1.0
     container_name: kachabazar-backend
     env_file:
@@ -19,6 +22,11 @@ services:
     restart: "no"
 
   store:
+    build:
+      context: ./store
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://host.docker.internal:5055/api
     image: kachabazar-store:1.0
     container_name: kachabazar-store
     env_file:
@@ -28,8 +36,16 @@ services:
     restart: unless-stopped
 
   admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_API_BASE_URL: http://localhost:5055/api
+        VITE_APP_ENCRYPT_PASSWORD: ${VITE_APP_ENCRYPT_PASSWORD}
     image: kachabazar-admin:1.1
     container_name: kachabazar-admin
+    env_file:
+      - ./admin/.env
     ports:
       - "4100:80"
     restart: unless-stopped
