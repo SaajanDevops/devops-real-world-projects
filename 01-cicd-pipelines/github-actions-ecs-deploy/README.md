@@ -1,8 +1,35 @@
-# GitHub Actions CI/CD → ECR → ECS Fargate
+# GitHub Actions CI/CD → Amazon ECR → Amazon ECS Fargate
 
-A VProfile Java web application deployed with a GitHub Actions CI/CD pipeline.
+A production-oriented CI/CD implementation for a Java web application,
+automating source validation, code quality analysis, container image
+publishing, and deployment to Amazon ECS Fargate.
 
-This project implements a complete CI/CD pipeline using GitHub Actions. The AWS infrastructure is provisioned manually, while GitHub Actions automates testing, code analysis, Docker image building and publishing to Amazon ECR, and deployment to Amazon ECS. HTTPS is configured through an Application Load Balancer and ACM, with Route 53 providing the custom domain.
+The AWS infrastructure is provisioned manually, while GitHub Actions
+automates testing, code analysis, Docker image building and publishing
+to Amazon ECR, and ECS deployment. HTTPS is provided through an
+Application Load Balancer and AWS Certificate Manager, with Amazon Route
+53 providing the custom domain.
+
+![GitHub CI/CD → ECR → ECS Fargate
+Architecture](screenshots/01-architecture.png)
+
+## Project Overview
+
+This project demonstrates an end-to-end delivery workflow for a
+containerized Java web application:
+
+- GitHub source control
+- Maven testing and Checkstyle
+- SonarCloud analysis and Quality Gate validation
+- Docker image build and publishing to Amazon ECR
+- ECS task-definition image update
+- Amazon ECS Fargate deployment
+- Application Load Balancer
+- AWS Certificate Manager TLS certificate
+- Amazon Route 53 custom DNS
+- Secure application access over HTTPS
+
+**Application:** `https://vprofile.sajan.tech/login`
 
 ## Architecture
 
@@ -13,102 +40,68 @@ Developer
 GitHub Repository
    |
    v
-GitHub Actions Workflow
+GitHub Actions
    |
    +--> Testing
    |      +--> Checkout
    |      +--> Maven Test
    |      +--> Checkstyle
    |      +--> SonarCloud Scan
-   |      +--> SonarCloud Quality Gate
+   |      +--> Quality Gate
    |
    +--> BUILD_AND_PUBLISH
-   |      +--> Checkout
    |      +--> Inject RDS settings
    |      +--> Build Docker image
    |      +--> Push to Amazon ECR
    |
    +--> Deploy
           +--> Render ECS task definition
-          +--> Use GitHub Run Number as image tag
-          +--> Deploy new task definition to ECS
-          +--> Wait for ECS service stability
+          +--> Apply GitHub Run Number as image tag
+          +--> Deploy to ECS Fargate
+          +--> Wait for service stability
 
 Amazon ECR
    |
    v
-ECS Fargate
+Amazon ECS Fargate
    |
    v
 Application Load Balancer
    |
-   +--> HTTP :80
-   |      (recommended: redirect to HTTPS)
-   |
    +--> HTTPS :443
           |
-          +--> ACM *.sajan.tech
+          +--> ACM (*.sajan.tech)
           |
           v
-       Target Group :8080
+     ECS Target Group :8080
           |
           v
-       VProfile / Tomcat
+     VProfile / Tomcat
 
 Route 53
    |
    +--> vprofile.sajan.tech
-           CNAME
            |
            v
        ALB DNS name
 ```
 
-## AWS environment used
+## Key Highlights
 
-- AWS Region: `us-east-2`
-- ECR Repository: `github-ci-cd`
-- ECS Cluster: `vproapp-github`
-- ECS Service: `vproapp-github-svc`
-- ECS Task Definition Family: `vproapp-github-tdef`
-- Container Name: `vproapp`
-- Container Port: `8080`
-- Target Group: `vproappECS-TGnew`
-- Load Balancer: `vproappECSELB`
-- Custom application hostname: `vprofile.sajan.tech`
-- ACM certificate: wildcard certificate for `*.sajan.tech`
-- ALB HTTPS listener: `443`
+### Automated CI/CD
 
-## CI/CD jobs
+GitHub Actions separates validation, image publishing, and deployment
+into dependent jobs. A deployment proceeds only after the required
+upstream jobs succeed.
 
-### 1. Testing
+### Quality and Security Checks
 
-The `Testing` job:
+The pipeline includes Maven tests, Checkstyle, SonarCloud analysis, and
+a SonarCloud Quality Gate.
 
-1. Checks out the repository.
-2. Runs Maven tests.
-3. Runs Checkstyle.
-4. Uses SonarSource's SonarQube scan action.
-5. Checks the SonarCloud quality gate.
+### Traceable Container Releases
 
-The workflow requires the SonarCloud values to be stored as GitHub repository secrets.
-
-### 2. BUILD_AND_PUBLISH
-
-This job waits for `Testing`:
-
-```yaml
-needs: Testing
-```
-
-It then:
-
-1. Checks out the source.
-2. Replaces the database username, password, and endpoint in `application.properties`.
-3. Builds the Docker image.
-4. Pushes the image to Amazon ECR.
-
-The image receives two tags:
+Images are published with:
 
 ```text
 latest
@@ -121,35 +114,203 @@ For example, GitHub Actions run `11` produces:
 github-ci-cd:11
 ```
 
+The same run number is used when rendering the ECS task definition,
+providing a clear relationship between a CI/CD execution and its
+deployed image.
+
+### Secure Public Access
+
+The application is exposed through:
+
+```text
+https://vprofile.sajan.tech/login
+```
+
+using Route 53, an Application Load Balancer, and an ACM wildcard
+certificate for `*.sajan.tech`.
+
+## Technology Stack
+
+Category Technology
+
+---
+
+Application Java / Spring MVC / JSP
+Build Maven
+Runtime Tomcat 10 / JDK 21
+Containerization Docker
+Source Control Git / GitHub
+CI/CD GitHub Actions
+Code Quality Checkstyle / SonarCloud
+Registry Amazon ECR
+Compute Amazon ECS Fargate
+Load Balancing Application Load Balancer
+TLS AWS Certificate Manager
+DNS Amazon Route 53
+Database Amazon RDS for MySQL
+AWS Region `us-east-2`
+
+## CI/CD Pipeline
+
+### 1. Testing
+
+The `Testing` job:
+
+1.  Checks out the repository.
+2.  Configures Java 21.
+3.  Runs Maven tests.
+4.  Runs Checkstyle.
+5.  Runs SonarCloud analysis.
+6.  Validates the SonarCloud Quality Gate.
+
+### 2. BUILD_AND_PUBLISH
+
+This job depends on the testing stage:
+
+```yaml
+needs: Testing
+```
+
+It:
+
+1.  Checks out the source.
+2.  Injects the deployment database username, password, and endpoint.
+3.  Builds the Docker image.
+4.  Pushes the image to Amazon ECR.
+
 ### 3. Deploy
 
-The deployment job waits for `BUILD_AND_PUBLISH`:
+This job depends on the image publishing stage:
 
 ```yaml
 needs: BUILD_AND_PUBLISH
 ```
 
-It uses:
-
-```text
-${{ github.run_number }}
-```
-
-as the Docker image tag.
-
-The ECS task definition renderer replaces the container image with:
+The ECS task-definition renderer replaces the application container
+image with:
 
 ```text
 <REGISTRY>/github-ci-cd:<github.run_number>
 ```
 
-Then the updated task definition is deployed to the ECS service.
+The updated task definition is deployed to the ECS service, with:
 
-`wait-for-service-stability: true` makes the workflow wait until ECS reaches a stable service state.
+```yaml
+wait-for-service-stability: true
+```
 
-## Important GitHub Secrets
+to wait for the service to become stable.
 
-Create these repository secrets:
+## AWS Environment
+
+Resource Configuration
+
+---
+
+Region `us-east-2`
+ECR Repository `github-ci-cd`
+ECS Cluster `vproapp-github`
+ECS Service `vproapp-github-svc`
+Task Definition Family `vproapp-github-tdef`
+Container `vproapp`
+Container Port `8080`
+Target Group `vproappECS-TGnew`
+Load Balancer `vproappECSELB`
+Application Domain `vprofile.sajan.tech`
+ACM Certificate `*.sajan.tech`
+HTTPS Listener `443`
+
+## Docker Implementation
+
+The Dockerfile uses a multi-stage build:
+
+```text
+Maven + JDK 21
+      |
+      v
+Build WAR
+      |
+      v
+Tomcat 10 + JDK 21
+      |
+      v
+ROOT.war
+      |
+      v
+Port 8080
+```
+
+Runtime command:
+
+```dockerfile
+CMD ["catalina.sh", "run"]
+```
+
+## Database Configuration
+
+The default configuration is stored in:
+
+```text
+src/main/resources/application.properties
+```
+
+Before the image is built, the workflow replaces:
+
+```text
+jdbc.username
+jdbc.password
+jdbc.url
+```
+
+The database hostname replacement targets the original development
+hostname:
+
+```bash
+sed -i "s/vprodb/${{ secrets.RDS_ENDPOINT }}/" src/main/resources/application.properties
+```
+
+Deployment credentials are therefore not committed to the repository.
+
+## HTTPS, ACM & Route 53
+
+### Route 53
+
+A CNAME record maps:
+
+```text
+vprofile.sajan.tech
+```
+
+to the Application Load Balancer DNS name.
+
+### ACM
+
+The HTTPS listener uses:
+
+```text
+*.sajan.tech
+```
+
+which covers the `vprofile.sajan.tech` hostname.
+
+### Application Load Balancer
+
+```text
+HTTPS :443
+     |
+     +--> ACM (*.sajan.tech)
+     |
+     +--> vproappECS-TGnew
+     |
+     +--> ECS container :8080
+```
+
+HTTP `:80` is also configured. For a production environment, HTTP should
+redirect to HTTPS so that the secure endpoint is consistently enforced.
+
+## GitHub Repository Secrets
+
+The workflow expects these repository secrets:
 
 ```text
 SONAR_TOKEN
@@ -159,7 +320,6 @@ SONAR_PROJECT_KEY
 
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
-
 REGISTRY
 
 RDS_USER
@@ -167,9 +327,7 @@ RDS_PASS
 RDS_ENDPOINT
 ```
 
-### REGISTRY
-
-The value should be the ECR registry/account URI without the repository name, for example:
+`REGISTRY` contains the ECR registry URI without the repository name:
 
 ```text
 368740523992.dkr.ecr.us-east-2.amazonaws.com
@@ -178,189 +336,68 @@ The value should be the ECR registry/account URI without the repository name, fo
 The workflow constructs:
 
 ```text
-${{ secrets.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.run_number }}
+<REGISTRY>/<ECR_REPOSITORY>:<github.run_number>
 ```
 
-## GitHub Actions workflow
+## Workflow Configuration
 
-The workflow is located at:
+Workflow file:
 
 ```text
 .github/workflows/main.yml
 ```
 
-The current trigger is manual:
+Current trigger:
 
 ```yaml
 on: workflow_dispatch
 ```
 
-This means you can run it from:
+This allows a deployment to be started manually from GitHub Actions. A
+push-based trigger can be introduced when automatic deployment on source
+changes is required.
 
-**GitHub → Actions → github-ci-cd → Run workflow**
+## Project Evidence
 
-If automatic execution on pushes is desired later, the trigger can be changed to a push-based trigger.
+The `screenshots/` directory contains the implementation evidence for the CI/CD pipeline, AWS infrastructure, HTTPS configuration, DNS setup, and final application deployment.
 
-## Dockerfile
+### Architecture
 
-The Dockerfile uses a multi-stage build:
+![GitHub CI/CD → ECR → ECS Fargate Architecture](screenshots/01-architecture.png)
 
-```text
-Maven + Java 21 build image
-        |
-        v
-Build WAR
-        |
-        v
-Tomcat 10 + JDK 21 runtime image
-        |
-        v
-ROOT.war
-        |
-        v
-Port 8080
-```
+### GitHub Actions
 
-The runtime command is:
+![GitHub Actions](screenshots/02-github-actions.png)
 
-```dockerfile
-CMD ["catalina.sh", "run"]
-```
+### SonarCloud Quality Gate
 
-## Database configuration
+![SonarCloud Quality Gate](screenshots/03-sonar-quality-gate.png)
 
-The repository contains the default development values in:
+### Amazon ECR
 
-```text
-src/main/resources/application.properties
-```
+![Amazon ECR Images](screenshots/04-ecr-images.png)
 
-The CI/CD workflow changes:
+### Amazon ECS Service
 
-```text
-jdbc.username
-jdbc.password
-jdbc.url
-```
+![Amazon ECS Service](screenshots/05-ecs-service.png)
 
-before the Docker image is built.
+### ECS Task Definition
 
-The endpoint replacement is:
+![ECS Task Definition](screenshots/06-ecs-task-definition.png)
 
-```bash
-sed -i "s/vprodb/${{ secrets.RDS_ENDPOINT }}/" src/main/resources/application.properties
-```
+### Application Load Balancer — HTTPS
 
-This is important because the source file uses `vprodb` as the original database hostname.
+![ALB HTTPS Listener](screenshots/07-alb-https-listener.png)
 
-## ECS task definition
+### Route 53 DNS
 
-The source task definition is:
+![Route 53 DNS](screenshots/08-route53-dns.png)
 
-```text
-aws-files/taskdeffile.json
-```
+### VProfile Application — HTTPS Login
 
-The deployment action renders the new image tag into this file during the workflow.
+![VProfile HTTPS Login](screenshots/09-https-login.png)
 
-The application container listens on:
-
-```text
-8080
-```
-
-The ALB forwards traffic to the ECS target group on port `8080`.
-
-## HTTPS / ACM / Route 53
-
-The project goes one step further than the original course flow by using a custom DNS name and HTTPS.
-
-### Route 53
-
-Create a CNAME record:
-
-```text
-Name:   vprofile
-Type:   CNAME
-Value:  vproappecselb-130055047.us-east-2.elb.amazonaws.com
-```
-
-This gives:
-
-```text
-vprofile.sajan.tech
-```
-
-### ACM
-
-The ALB HTTPS listener uses the ACM wildcard certificate:
-
-```text
-*.sajan.tech
-```
-
-Therefore:
-
-```text
-https://vprofile.sajan.tech/login
-```
-
-can use the certificate.
-
-### ALB listeners
-
-HTTPS:
-
-```text
-HTTPS :443
-   |
-   +--> ACM *.sajan.tech
-   |
-   +--> vproappECS-TGnew
-```
-
-HTTP:
-
-```text
-HTTP :80
-```
-
-For a production-style setup, HTTP :80 should redirect to HTTPS :443 instead of forwarding directly.
-
-## Screenshots
-
-The `screenshots/` directory contains named PNG placeholders.
-
-Replace each placeholder with your actual AWS/GitHub/Sonar screenshot while keeping the same filename.
-
-```text
-screenshots/
-├── 01-architecture.png
-├── 02-github-actions.png
-├── 03-sonar-quality-gate.png
-├── 04-ecr-images.png
-├── 05-ecs-service.png
-├── 06-ecs-task-definition.png
-├── 07-alb-https-listener.png
-└── 08-route53-dns.png
-└── 09-https-login.png
-```
-
-Recommended screenshot contents:
-
-| File                         | Screenshot to add                                       |
-| ---------------------------- | ------------------------------------------------------- |
-| `01-architecture.png`        | Overall GitHub → Actions → ECR → ECS → ALB architecture |
-| `02-github-actions.png`      | Successful GitHub Actions workflow                      |
-| `03-sonar-quality-gate.png`  | SonarCloud project / quality gate                       |
-| `04-ecr-images.png`          | ECR repository showing `latest` and numbered image tags |
-| `05-ecs-service.png`         | ECS service showing healthy deployment                  |
-| `06-ecs-task-definition.png` | ECS task definition and container image                 |
-| `07-alb-https-listener.png`  | ALB HTTPS 443 listener with ACM certificate             |
-| `08-route53-dns.png`         | Route 53 CNAME for `vprofile.sajan.tech`                |
-| `09-https-login.png`         | Route 53 CNAME for `vprofile.sajan.tech`                |
-
-## Repository structure
+## Project Structure
 
 ```text
 github-cicd-ecs/
@@ -374,8 +411,65 @@ github-cicd-ecs/
 │       ├── java/
 │       ├── resources/
 │       └── webapp/
+├── screenshots/
+│   ├── 01-architecture.png
+│   ├── 02-github-actions.png
+│   ├── 03-sonar-quality-gate.png
+│   ├── 04-ecr-images.png
+│   ├── 05-ecs-service.png
+│   ├── 06-ecs-task-definition.png
+│   ├── 07-alb-https-listener.png
+│   ├── 08-route53-dns.png
+│   └── 09-https-login.png
 ├── Dockerfile
 ├── pom.xml
-├── screenshots/
 └── README.md
 ```
+
+## Security & Operational Considerations
+
+- Credentials are supplied through GitHub repository secrets rather
+  than committed to source control.
+- TLS is terminated at the Application Load Balancer using ACM.
+- ECS Fargate provides the container runtime without requiring server
+  management.
+- Numbered ECR image tags provide release traceability.
+- ECS deployment waits for service stability before the workflow
+  completes.
+- The application is accessed through a custom DNS hostname rather
+  than directly exposing the ECS task.
+
+For further production hardening, the architecture can be extended with
+least-privilege IAM policies, centralized secret management,
+HTTP-to-HTTPS redirection, monitoring, logging, and alerting.
+
+## Project Outcome
+
+The implementation connects the complete application delivery lifecycle:
+
+```text
+Source Code
+    ↓
+Automated Testing
+    ↓
+Code Quality Analysis
+    ↓
+Docker Image
+    ↓
+Amazon ECR
+    ↓
+Amazon ECS Fargate
+    ↓
+Application Load Balancer
+    ↓
+ACM / HTTPS
+    ↓
+Route 53
+    ↓
+Secure VProfile Application
+```
+
+The result is a repeatable CI/CD workflow that takes a Java application
+from source code through automated validation and container publishing
+to an ECS Fargate deployment, with secure public access through a custom
+HTTPS domain.
