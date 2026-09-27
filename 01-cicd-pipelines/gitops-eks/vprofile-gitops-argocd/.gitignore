@@ -1,0 +1,26 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets / local credentials
+.env
+.env.*
+*.pem
+*.key
+*credentials*
+*secret*.json
+
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform.tfstate.lock.info
+
+# Generated build artifacts
+**/target/
+**/node_modules/
