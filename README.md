@@ -71,24 +71,14 @@ _*(More categories — Kubernetes, GitOps, Monitoring, Multi-Cloud — will be a
 
 ## Skills Matrix
 
-| Tool                                  | Projects |
-| ------------------------------------- | -------- |
-| Jenkins                               | 01       |
-| Docker / Docker Compose               | 02, 04   |
-| SonarQube / Nexus                     | 01       |
-| AWS EC2 / ALB / Auto Scaling          | 02, 03   |
-| AWS Elastic Beanstalk                 | 02       |
-| AWS RDS / ElastiCache / Amazon MQ     | 02       |
-| AWS CloudFront                        | 02       |
-| AWS Route 53 / ACM / IAM / CloudWatch | 01, 02   |
-| AWS ECR / ECS                         | 01       |
-| AWS S3                                | 02, 03   |
-| AWS VPC (networking)                  | 02, 03   |
-| Terraform                             | 03       |
-| Node.js / Express                     | 04       |
-| MongoDB                               | 04       |
-| NGINX                                 | 04       |
-| Slack (CI notifications)              | 01       |
+| Tools / Skills                                          |       Projects |
+| ------------------------------------------------------- | -------------: |
+| **CI/CD & GitOps** — Jenkins · GitHub Actions · Argo CD | **3 Projects** |
+| **Cloud** — AWS                                         | **3 Projects** |
+| **Infrastructure as Code** — Terraform                  | **2 Projects** |
+| **Containerization** — Docker · Docker Compose          | **3 Projects** |
+| **Kubernetes Orchestration** — Kubernetes · EKS · Helm  |  **1 Project** |
+| **Observability** — Prometheus · Grafana · Loki         |  **1 Project** |
 
 ## How this repo is organized
 
