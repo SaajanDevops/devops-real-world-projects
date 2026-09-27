@@ -9,7 +9,31 @@ architecture, stack, how to run), its own code, and its own screenshots.
 
 ## About me
 
-[Short intro — who you are, background, and the DevOps/Cloud role you're targeting]
+I’m a Backend Developer with 2 years of professional experience, now
+specializing in DevOps and Cloud Engineering. Alongside my backend development
+experience, I have built and implemented real-world DevOps projects covering
+AWS cloud infrastructure, CI/CD automation, containerization, Kubernetes,
+Infrastructure as Code, GitOps, and observability.
+
+My hands-on DevOps work includes building CI/CD pipelines with Jenkins and
+GitHub Actions, provisioning AWS infrastructure with Terraform, containerizing
+applications with Docker and Docker Compose, and deploying workloads on Amazon
+ECS and EKS.
+
+I have implemented Kubernetes deployments using Helm and Argo CD, along with
+AWS services including EC2, VPC, ALB, ECR, ECS, EKS, RDS, S3, Route 53, ACM,
+ElastiCache, and Amazon MQ. My projects also include observability and
+monitoring using Prometheus, Grafana, and Loki for metrics, visualization,
+and centralized logging.
+
+This repository showcases practical, real-world DevOps implementations,
+covering the journey from application containerization and infrastructure
+provisioning to automated CI/CD, Kubernetes deployments, GitOps, and
+observability.
+
+I’m focused on building my career as a DevOps Engineer, with an emphasis on
+AWS, automation, Kubernetes, Infrastructure as Code, CI/CD, GitOps,
+observability, and reliable production-ready cloud environments.
 
 ## Projects
 
