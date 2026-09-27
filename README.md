@@ -77,7 +77,7 @@ _*(More categories — Kubernetes, GitOps, Monitoring, Multi-Cloud — will be a
 | **Cloud** — AWS                                         | **3 Projects** |
 | **Infrastructure as Code** — Terraform                  | **2 Projects** |
 | **Containerization** — Docker · Docker Compose          | **3 Projects** |
-| **Kubernetes Orchestration** — Kubernetes · EKS · Helm  |  **1 Project** |
+| **Kubernetes Orchestration**                            |  **1 Project** |
 | **Observability** — Prometheus · Grafana · Loki         |  **1 Project** |
 
 ## How this repo is organized
